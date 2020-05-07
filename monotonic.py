@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import csv
 from pathlib import Path
 
-import monotonic_functions
+import get_channels
 #------------------------------#
 #
 class Monotonic:
@@ -18,15 +18,8 @@ class Monotonic:
         self.data = pd.read_csv(file,header=0)
         self.channels = channels
 
-        self.time = self.data[self.channels[0]]
-        self.position = self.data[self.channels[1]]
-        self.load = self.data[self.channels[2]]
-        self.axial_strain = self.data[self.channels[4]]
-        self.trans_strain = self.data[self.channels[5]]
-        if self.channels[3] == "":
-            pass
-        else:
-            self.stress = self.data[self.channels[3]]
+        #self.time = self.data[self.channels[0]]
+ 
     
     def get_stress(self):
         pass
@@ -43,10 +36,12 @@ class Monotonic:
 
 
 if __name__ == "__main__":
-    test1 = Monotonic(
-        Path(
+    workingfile = Path(
             os.path.dirname(os.path.realpath(__file__)),"Data_Files","M-4-D.csv"
         )
-    )
-    stress = test1.get_stress()
-    print(stress)
+    workingchannels = get_channels.Channels(workingfile).channels
+    
+    test1 = Monotonic(workingchannels,workingfile)
+
+    #stress = test1.get_stress()
+    #print(stress)

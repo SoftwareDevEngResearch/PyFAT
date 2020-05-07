@@ -5,17 +5,26 @@ class Channels:
     def __init__(self,file):
 
         def get_channels(data):
-            """Defines the column #'s for each data channel based on the 
+            """Defines the column name for each data channel based on the 
             channel headers. 
-            Note: this needs to be made more universal"""
+            Defines stress and geometry columns separately from others b/c
+            some data will have stress, some will not. Same with geometry"""
 
             #Get file headers as a list...
-            channel_names = list(data[:0])    
-
+            channel_names = list(data[:0])
+            
+            #Change headers to standard format for identification...
+            short_names = []
             for channel_name in channel_names:
-                #Change headers to standard format for identification...
-                name = channel_name.replace(" ","").lower()
-                #Use logic to identify channels...
+                channel_name = str(channel_name)
+                channel_name.replace(" ","").lower()
+                short_names.append(channel_name)
+            print("TEST: ",short_names)
+
+            #Loop for defining main channels...
+            for name in channel_names:
+
+                #Use logic to identify main channels...
                 if "position" in name:
                     pos_col = name
                 elif "load" in name:
@@ -23,36 +32,20 @@ class Channels:
                 elif "axialstrain" in name:
                     ax_col = name
                 elif "transversestrain" in name:
-                    tr_col = name
-                #Some data will have a stress column, some will not...
-                if "stress" in name:
+                    tr_col = name  
+                elif "stress" in name:
                     stress_col = name
-                    width_col = ""
-                    thick_col = ""
-                elif "width" in name:
-                    stress_col = ""
-                    width_col = name
-                elif "thickness" in name:
-                    stress_col = ""
-                    thick_col = name
-                else:
-                    raise ValueError(
-                        "Data must contain stress or width & thickness columns"
-                    )
 
-            channels = [pos_col, load_col, ax_col, tr_col]
+            #Define dynamic channels (stress, geometry)...
+            #    
 
-            #Append stress or cross-section information...
-            if stress_col=="":
-                channels.append(width_col)
-                channels.append(thick_col)
+            main_channels = [
+                pos_col, load_col, ax_col, tr_col
+            ]
                 
-            elif width_col=="":
-                channels.append(stress_col)
-                
-            return channels
+            return main_channels
 
         self.data = pd.read_csv(file,header=0)
-        self.channels = get_channels(self.data)
+        self.main_channels = get_channels(self.data)
 
         

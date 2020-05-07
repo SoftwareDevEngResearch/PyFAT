@@ -10,6 +10,7 @@
 from pathlib import Path
 import subprocess
 import os
+import argparse
 
 import monotonic
 import get_channels
@@ -29,7 +30,8 @@ def iterate(choice,path):
             files.remove(file)
 
     #Get channel names from first file 
-    file_channels = get_channels.Channels(Path(path,files[0]))
+    main_channels = get_channels.Channels(Path(path,files[0])).main_channels
+    #print(main_channels)
             
     print("Beginning Analysis Iteration...")
     for file in files:
@@ -91,12 +93,45 @@ def welcome():
     return choice, path
 
 
+def main():
+
+    #Add command-line inputs ...
+    parser = argparse.ArgumentParser(
+        description='Process monotonic or fatigue material test data'
+    )
+
+    parser.add_argument(
+        "input",help="The path to the input file",type = str
+    )
+
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument(
+        '-m','--monotonic',help="Perform analysis for monotonic data",
+        action="store_true"
+        )
+    group.add_argument(
+        '-f','--fatigue',help='Perform analysis for fatigue data',
+        action="store_true"
+    )
+    args = parser.parse_args()
+
+    input_file = args.input
+    print(input_file)
+    #print(type(args.monotonic))
+
+    if args.monotonic:
+        print("MONOTONIC!!!!")
+    elif args.fatigue:
+        print("FATIGUE!!!!")
 
 if __name__ == "__main__":
-    choice, path = welcome()
-    path = str(path.decode('utf-8'))
-    print(path)
-    iterate(choice,path)
+    main()
+    
+    #choice, path = welcome()
+    #path = str(path.decode('utf-8'))
+    #print(path)
+    #iterate(choice,path)
 
 
 
