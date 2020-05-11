@@ -12,36 +12,17 @@ import get_channels
 class Monotonic:
     """Takes in monotonic (tensile test) data and performs necessary processing
     """
-    def __init__(self, channels, file):
+    def __init__(self, channels, stress_bool, geo_bool, file):
         """Initializes the analysis for a single file with data channels defined
         """
         self.data = pd.read_csv(file,header=0)
         self.channels = channels
-
-        #self.time = self.data[self.channels[0]]
+        self.stress_bool = stress_bool
+        self.geo_bool = geo_bool
  
     
-    def get_stress(self):
-        pass
-        w = 13 #mm width
-        t = 5 #mm thickness
-        if self.channels[3] == "":
-            stress = self.load/(w*t)
-        else:
-            stress = self.stress
-
-        
+    def get_stress(self,channels,stress_bool,geo_bool):
+        if stress_bool:
+            stress = channels[4]
 
 
-
-
-if __name__ == "__main__":
-    workingfile = Path(
-            os.path.dirname(os.path.realpath(__file__)),"Data_Files","M-4-D.csv"
-        )
-    workingchannels = get_channels.Channels(workingfile).channels
-    
-    test1 = Monotonic(workingchannels,workingfile)
-
-    #stress = test1.get_stress()
-    #print(stress)
