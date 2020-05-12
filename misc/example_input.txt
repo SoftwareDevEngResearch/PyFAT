@@ -1,0 +1,9 @@
+#Test Analysis - Example input file 05/08/2020
+
+#This is a comment - lines that start with # are comments.
+
+#Required input location (where your data .csv files are located):
+INPUT = /Users/Kevan/Documents/ME599/Course_Project/PyFAT/misc/Data_Files
+
+#Required output location (where you want the results to be saved):
+OUTPUT = /Users/Kevan/Documents/ME599/Course_Project/Test_Output
