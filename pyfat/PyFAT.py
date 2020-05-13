@@ -61,20 +61,17 @@ def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
             Path(input_dir,files[0])
         )
     elif fatigue_bool:
-        pass
+        channels, stress_bool, geo_bool = get_channels.fatigue_channels(
+            Path(input_dir, files[0])
+        )
 
     #Start the Analysis...        
     if monotonic_bool:
         print("Beginning Monotonic Analysis Iteration...")
-        for filename in files:
-            this_file = Path(input_dir,filename)
-            name = str(filename)
-            print("    Reading File ",name)
-
-            monotonic.Monotonic(
-                channels, stress_bool, geo_bool, this_file
-            )
-
+        monotonic.mono_analysis(
+            input_dir, files, channels, stress_bool, geo_bool
+        )
+        
     elif fatigue_bool:
         pass #Pass for now ----- NEED TO ADD FATIGUE FUNCTIONALITY LATER
 

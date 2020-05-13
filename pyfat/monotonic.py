@@ -24,12 +24,25 @@ class Monotonic:
         if stress_bool:
             self.stress = self.data[channels[4]]
         elif geo_bool:
-            self.width = self.data[channels[4]]
-            self.thickness = self.data[channels[5]]
- 
-    
-    def get_stress(self,channels,stress_bool,geo_bool):
+            self.width = self.data[channels[4]][0]
+            self.thickness = self.data[channels[5]][0]
+            #self.stress = self.load/(self.width*self.thickness)
+        #print(self.stress)
+
+    """
+    def get_stress(self,stress_bool,geo_bool):
         if stress_bool:
-            stress = channels[4]
+            stress = self.stress
+        elif geo_bool:
+            w = self.width[0]
+            t = self.width[0]
+            area = w*t
+            stress = self.load/area
+        return stress
+    """
+    #stress = get_stress(stress_bool,geo_bool)
+    #print("STRESS=",stress)
+
+        
 
 

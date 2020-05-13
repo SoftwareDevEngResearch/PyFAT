@@ -1,9 +1,8 @@
-from PyFAT.get_channels import mono_channels
+from .. import get_channels
 
 
-
-def test_mono_channels():
+def test_mono_channels(file):
     pass
 
-def test_fatigue_channels():
+def test_fatigue_channels(file):
     pass
