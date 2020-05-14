@@ -27,7 +27,7 @@ class Monotonic:
             self.width = self.data[channels[4]][0]
             self.thickness = self.data[channels[5]][0]
             #self.stress = self.load/(self.width*self.thickness)
-        #print(self.stress)
+        print(self.thickness)
 
     """
     def get_stress(self,stress_bool,geo_bool):
@@ -44,5 +44,17 @@ class Monotonic:
     #print("STRESS=",stress)
 
         
+
+def mono_analysis(input_dir,files,channels,stress_bool,geo_bool):
+
+    for filename in files:
+        this_file = Path(input_dir,filename)
+        name = str(filename)
+        print("    Reading File ",name)
+
+        run = Monotonic(
+            channels, stress_bool, geo_bool, this_file
+        )
+
 
 

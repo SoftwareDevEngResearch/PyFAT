@@ -74,6 +74,11 @@ def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
         
     elif fatigue_bool:
         pass #Pass for now ----- NEED TO ADD FATIGUE FUNCTIONALITY LATER
+    """
+        fatigue.fatigue_analysis(
+            input_dir, files, channels, stress_bool, geo_bool
+        )
+    """
 
 
 def main():
@@ -99,12 +104,18 @@ def main():
         '-f','--fatigue',help='Perform analysis for fatigue data',
         action="store_true"
     )
+
+    parser.add_argument(
+        '-e','--elasticmodulus',help='Elastic modulus value given in MPa'
+    )
+
     args = parser.parse_args()
 
     #Get args...
     input_file = args.input
     monotonic_bool = args.monotonic
     fatigue_bool = args.fatigue
+    modulus = args.elasticmodulus
 
     #Read input file...
     input_path, output_path = io_sorter(input_file)
