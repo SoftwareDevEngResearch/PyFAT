@@ -41,13 +41,14 @@ def io_sorter(input_file):
     return input_loc, output_loc
 
 
-def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
+def analysis(input_path, output_path, monotonic_bool, fatigue_bool):
     """performs iteration of analysis. Takes in user input for analysis 
     type and directory path to data, performs analysis iteration for 
     selected analysis type. Saves results to user-defined save location."""
 
     #Get list of data files in input directory
     input_dir = str(input_path).strip()
+    output_dir = str(output_path).strip()
     files = next(os.walk(input_dir))[2]
     
     #Remove hidden folders/files from list
@@ -67,9 +68,9 @@ def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
 
     #Start the Analysis...        
     if monotonic_bool:
-        print("Beginning Monotonic Analysis Iteration...")
+        print("==================== MONOTONIC ANALYSIS ===================")
         monotonic.mono_analysis(
-            input_dir, files, channels, stress_bool, geo_bool
+            input_dir, output_dir, files, channels, stress_bool, geo_bool
         )
         
     elif fatigue_bool:
@@ -121,7 +122,7 @@ def main():
     input_path, output_path = io_sorter(input_file)
 
     #Begin selected analysis type...
-    analysis_iteration(
+    analysis(
         input_path, output_path, monotonic_bool, fatigue_bool
     )
   

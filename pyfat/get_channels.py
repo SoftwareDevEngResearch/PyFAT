@@ -47,7 +47,7 @@ def mono_channels(file):
         elif "thickness" in name:
             thick_bool = bool(True)
             thick_col = channel_names[i]
-        i = i+1
+        i += 1
 
     channels = [
         pos_col, load_col, ax_col, tr_col
@@ -116,7 +116,7 @@ def fatigue_channels(file):
             max_stress_col = channel_names[i]
         elif "stress" and "minimum" in name:
             stress_bool = bool(True)
-            min_stress_col - channel_names[i]
+            min_stress_col = channel_names[i]
         elif "width" in name:
             width_bool = bool(True)
             width_col = channel_names[i]
@@ -124,7 +124,7 @@ def fatigue_channels(file):
             thick_bool = bool(True)
             thick_col = channel_names[i]
 
-        i = i + 1
+        i += 1
 
     channels = [
         cycles_col, max_load_col, min_load_col, max_str_col, min_str_col
