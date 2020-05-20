@@ -2,9 +2,10 @@
 import os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import csv
 from pathlib import Path
+#---------#
+import plots
 #------------------------------#
 #
 class Monotonic:
@@ -16,10 +17,10 @@ class Monotonic:
         self.data = pd.read_csv(file,header=0)
 
         #Define axial strain...
-        self.ax_str = self.data[channels[2]]/100    #% to m/m
+        strain = self.data[channels[2]]/100    #% to m/m
         #Get max strain, cut off all data at that index ("eod")...
-        max_ax_str = max(self.ax_str)
-        eod = np.where(self.ax_str == max_ax_str)[-1][0]
+        max_strain = max(strain)
+        eod = np.where(strain == max_strain)[-1][0]
 
         self.position = self.data[channels[0]][:eod]/1000 #mm to m
         self.load = self.data[channels[1]][:eod]*1000     #kN to N
@@ -33,6 +34,13 @@ class Monotonic:
             self.thickness = self.data[channels[5]][0]/1000     #mm to m
             self.stress = self.load/(self.width*self.thickness) #Pa
 
+
+    def get_positions(self):
+        """Finds start and end position as well as nominal extension"""
+        p1 = self.position[0]               #Starting position
+        p2 = self.position[len(self.position)-1] #End position
+        ext = p2-p1                    #Nominal Extension
+        return p1, p2, ext
 
     def get_true(self):
         """Takes in engineering stress and strain channels, returns true stress 
@@ -98,72 +106,95 @@ class Monotonic:
         return yield_stress, yield_strain, max_load
 
 
-    def 
+    def get_engr_fracture(self):
+        """defines fracture point stress, axial and trans. strain"""
+        engr_frac_strength = self.stress[len(self.stress)-1]
+        engr_frac_strain = max(self.ax_str)
+        trans_frac_strain = max(self.tr_str)
 
-    def get_max_values(self):
-        """Returns max values for axial engr strain, engineering stress, 
-        load, and s
-        """
-        pass
-
-
+        return engr_frac_strength, engr_frac_strain, trans_frac_strain
 
 
-    """
-    def get_pr(self): 
-        emod = self.get_emod()
-
-    
-    def get_stress(self,stress_bool,geo_bool):
-        if stress_bool:
-            stress = self.stress
-        elif geo_bool:
-            w = self.width[0]
-            t = self.width[0]
-            area = w*t
-            stress = self.load/area
-        return stress
-    """ 
-
-        
+#==============================================================================#
 
 def mono_analysis(
     input_dir, output_dir, files, channels, stress_bool, geo_bool
     ):
 
-    print("Beginning Analysis Iteration...")
-    for filename in files:
-        this_file = Path(input_dir,filename)
-        name = str(filename)
-        print("    Reading File ",name)
+    with open((str(output_dir) + '/Monotonic_Output.csv'),'w', newline='') as f:
+        thewriter = csv.writer(f,delimiter=',')
+        thewriter.writerow([
+            'File Name','Start Position (mm)','End Position (mm)',
+            'Nominal Extension(mm)','Poissons Ratio','Tensile Modulus (GPa)',
+            '0.2% Offset Strength (MPa)','0.2% Offset Strain (m/m)',
+            'Max Load (kN)','Yield Stress (MPa)','Yield Strain(m/m)',
+            'Ult. True Strength (MPa)','Engineering Fracture Strength (MPa)',
+            'Ult. True Ductility (m/m)','Max Axial Strain (%)',
+            'Max Transverse Strain (%)'
+        ])
 
-        #Create Instance...
-        run = Monotonic(
-            channels, stress_bool, geo_bool, this_file
-        )
+        print("Beginning Analysis Iteration...")
+        runs = []
+        names = []
+        for filename in files:
+            this_file = Path(input_dir,filename)
+            name = str(filename)
+            print("    Reading File ",name)
+
+            #Create Instance...
+            run = Monotonic(
+                channels, stress_bool, geo_bool, this_file
+            )
+
+            #Get positions...
+            p1, p2, ext = run.get_positions()
+
+            #Get true stress and strain...
+            true_stress, true_strain = run.get_true()
+
+            #Get elastic modulus and Poissons ratio...
+            poissons, emod = run.get_modulus_and_poissons()
+
+            #get 0.2% offset strain and stress...
+            offset_strain, offset_stress = run.get_offset(emod)
+
+            #Get yield point(max of stress-strain curve)...
+            yield_stress, yield_strain, max_load = run.get_yield()
+
+            #Get fracture stress and strain...
+            engr_frac_strength, max_ax_str, max_tr_str = run.get_engr_fracture()
+
+            #Get ultimate true stress/strain...
+            max_true_stress = max(true_stress)
+            max_true_strain = max(true_strain)
+
+            #Write values to file for each test...
+            thewriter.writerow([
+                name, p1, p2, ext, poissons, emod, offset_stress, offset_strain,
+                max_load, yield_stress, yield_strain, max_true_stress, 
+                engr_frac_strength,max_true_strain, max_ax_str, max_tr_str
+                
+            ])
+
+            #make Individual Test Plot...
+            plots.Plots(
+                name[:-4],Path(str(output_dir),'plots')
+            ).mono_test_plot(
+                run.ax_str,run.stress,true_strain,true_stress
+            )
+
+            runs.append(run)
+            names.append(name[:-4])
+        print("Saving Results...")
         
-        #Get true stress and strain
-        true_stress, true_strain = run.get_true()
+        #Plots...
+        print("Creating Plots...")
+        plots.Plots(
+            name[:-4],Path(str(output_dir),'plots')
+            ).mono_all_plot(runs,names)
 
-        #Get elastic modulus and Poissons ratio...
-        poissons, emod = run.get_modulus_and_poissons()
 
-        #get 0.2% offset strain and stress
-        offset_strain, offset_stress = run.get_offset(emod)
 
-        #Get yield point(max of stress-strain curve)
-        yield_stress, yield_strain, max_load = run.get_yield()
+
 
         
-        
-
-
-
-
-
-
-
-
-    
-
-
