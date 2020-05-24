@@ -28,7 +28,7 @@ class Monotonic:
         self.tr_str = self.data[channels[3]][:eod]/100    #% to m/m
 
         if stress_bool:
-            self.stress = self.data[channels[4]][:eod]
+            self.stress = self.data[channels[4]][:eod]*10**6    #MPa to Pa
         elif geo_bool:
             self.width = self.data[channels[4]][0]/1000         #mm to m
             self.thickness = self.data[channels[5]][0]/1000     #mm to m

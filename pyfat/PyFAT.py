@@ -13,6 +13,7 @@ import argparse
 import datetime
 #--------#
 import monotonic
+import fatigue
 import get_channels
 #-----------------------#
 
@@ -55,7 +56,9 @@ def io_sorter(input_file):
     return input_loc, output_loc
 
 
-def analysis(input_path, output_path, monotonic_bool, fatigue_bool):
+def analysis(
+    input_path, output_path, monotonic_bool, fatigue_bool, modulus=None
+    ):
     """performs iteration of analysis. Takes in user input for analysis 
     type and directory path to data, performs analysis iteration for 
     selected analysis type. Saves results to user-defined save location."""
@@ -68,10 +71,12 @@ def analysis(input_path, output_path, monotonic_bool, fatigue_bool):
     #Make Folder to Save Results in
     time, date = get_datetime()
     if monotonic_bool:
+        print("==================== MONOTONIC ANALYSIS ===================")
         output_folder = Path(
             output_dir,"Monotonic_Results_" + date + "_" + time
         )
     if fatigue_bool:
+        print("===================== FATIGUE ANALYSIS ====================")
         output_folder = Path(
             output_dir,"Fatigue_Results_" + date + "_" + time
         )
@@ -95,22 +100,19 @@ def analysis(input_path, output_path, monotonic_bool, fatigue_bool):
 
     #Start the Analysis...        
     if monotonic_bool:
-        print("==================== MONOTONIC ANALYSIS ===================")
         monotonic.mono_analysis(
             input_dir, output_folder, files, channels, stress_bool, geo_bool
         )
         
     elif fatigue_bool:
-        pass #Pass for now ----- NEED TO ADD FATIGUE FUNCTIONALITY LATER
-    """
-        print("===================== FATIGUE ANALYSIS ====================")
         fatigue.fatigue_analysis(
-            input_dir, output_folder, files, channels, stress_bool, geo_bool
+            input_dir, output_folder, files, channels, stress_bool, geo_bool,
+            modulus
         )
-    """
+    
     #Finish up everything...
     print("---- DONE ----")
-    print("View the results here:")
+    print("View results here:")
     print(str(output_folder))
     print("===========================================================")
 
@@ -156,7 +158,7 @@ def main():
 
     #Begin selected analysis type...
     analysis(
-        input_path, output_path, monotonic_bool, fatigue_bool
+        input_path, output_path, monotonic_bool, fatigue_bool, modulus=modulus
     )
   
 

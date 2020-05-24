@@ -20,10 +20,10 @@ def mono_channels(file):
 
     #Loop for defining main channels...
     i = 0
-    stress_bool = bool(False)
-    width_bool = bool(False)
-    thick_bool = bool(False)
-    geo_bool = bool(False)
+    stress_bool = False
+    width_bool = False
+    thick_bool = False
+    geo_bool = False
 
     for name in std_names:
 
@@ -39,13 +39,13 @@ def mono_channels(file):
 
         #Use boolean to identify inconsistent channels...
         elif "stress" in name:
-            stress_bool = bool(True)
+            stress_bool = True
             stress_col = channel_names[i]
         elif "width" in name:
-            width_bool = bool(True)
+            width_bool = True
             width_col = channel_names[i]
         elif "thickness" in name:
-            thick_bool = bool(True)
+            thick_bool = True
             thick_col = channel_names[i]
         i += 1
 
@@ -54,12 +54,13 @@ def mono_channels(file):
     ]
 
     #Append stress or geometry...
+    geo_bool = False
     if stress_bool:
         channels.append(stress_col)
     elif width_bool and thick_bool:
         channels.append(width_col)
         channels.append(thick_col)
-        geo_bool = bool(True)
+        geo_bool = True
     elif stress_bool and width_bool and thick_bool:
         raise AttributeError(
             "Data must contain stress OR sample geometry, not both"
@@ -86,43 +87,45 @@ def fatigue_channels(file):
     
     #Change headers to standard format for identification...
     std_names = []
+    reg_names = []
     for channel_name in channel_names:
+        reg_names.append(channel_name)
         channel_name = str(channel_name).replace(" ","").lower()
         std_names.append(channel_name)
     
     #Loop for defining main channels...
     i = 0
-    stress_bool = bool(False)
-    width_bool = bool(False)
-    thick_bool = bool(False)
-    geo_bool = bool(False) 
+    stress_bool = False
+    width_bool = False
+    thick_bool = False
+    geo_bool = False
 
     for name in std_names:
 
-        if "totalcycles" in name:
-            cycles_col = channel_names[i]
-        elif "load" and "maximum" in name:
-            max_load_col = channel_names[i]
-        elif "load" and "minimum" in name:
-            min_load_col = channel_names[i]
-        elif "axialstrain" and "maximum" in name:
-            max_str_col = channel_names[i]
-        elif "axialstrain" and "minimum" in name:
-            min_str_col = channel_names[i]
+        if "cycle" in name and not "time" in name:
+            cycles_col = reg_names[i]
+        elif "max" in name and "load" in name:
+            max_load_col = reg_names[i]
+        elif "min" in name and "load" in name:
+            min_load_col = reg_names[i]
+        elif "axialstrain" in name and "max" in name:
+            max_str_col = reg_names[i]
+        elif "axialstrain" in name and "min" in name:
+            min_str_col = reg_names[i]
         
         #Use boolean to identify inconsistent channels...
-        elif "stress" and "maximum" in name:
-            stress_bool = bool(True)
-            max_stress_col = channel_names[i]
-        elif "stress" and "minimum" in name:
-            stress_bool = bool(True)
-            min_stress_col = channel_names[i]
+        elif "stress" in name and "max" in name:
+            stress_bool = True
+            max_stress_col = reg_names[i]
+        elif "stress" in name and "min" in name:
+            stress_bool = True
+            min_stress_col = reg_names[i]
         elif "width" in name:
-            width_bool = bool(True)
-            width_col = channel_names[i]
+            width_bool = True
+            width_col = reg_names[i]
         elif "thickness" in name:
-            thick_bool = bool(True)
-            thick_col = channel_names[i]
+            thick_bool = True
+            thick_col = reg_names[i]
 
         i += 1
 
@@ -131,13 +134,14 @@ def fatigue_channels(file):
     ]
 
     #Append stress or geometry...
+    geo_bool = False
     if stress_bool:
         channels.append(max_stress_col)
         channels.append(min_stress_col)
     elif width_bool and thick_bool:
         channels.append(width_col)
         channels.append(thick_col)
-        geo_bool = bool(True)
+        geo_bool = True
     elif stress_bool and width_bool and thick_bool:
         raise AttributeError(
             "Data must contain stress OR sample geometry, not both"
@@ -146,7 +150,7 @@ def fatigue_channels(file):
         raise AttributeError(
             "Data must contain stress OR sample width AND thickness"
         )
-    
+
     return channels, stress_bool, geo_bool
 
 
