@@ -107,7 +107,7 @@ def analysis(
     elif fatigue_bool:
         fatigue.fatigue_analysis(
             input_dir, output_folder, files, channels, stress_bool, geo_bool,
-            modulus
+            modulus, date, time
         )
     
     #Finish up everything...

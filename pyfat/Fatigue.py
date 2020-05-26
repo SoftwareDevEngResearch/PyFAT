@@ -44,7 +44,7 @@ class Fatigue:
         #Get Data and cycles channel and elastic modulus
         self.data = pd.read_csv(file,header=0)
         self.cycles = self.data[channels[0]]
-        self.modulus = modulus*10**6 #MPa to Pa
+        self.modulus = int(modulus)*10**6 #MPa to Pa
 
         #Determined Half-Life Cycle index...
         HLC_index = get_HLC()
@@ -64,7 +64,7 @@ class Fatigue:
             self.width = self.data[channels[5]][0]/1000     #mm to m
             self.thickness = self.data[channels[6]][0]/1000 #mm to m
             self.max_stress = self.max_load/(self.width * self.thickness) #Pa
-            self.min_stress = self.min_load/self.width * self.thickness) #Pa
+            self.min_stress = self.min_load/(self.width * self.thickness) #Pa
 
     
     def get_true_stress(self):
@@ -75,20 +75,24 @@ class Fatigue:
 
         return max_true_stress, min_true_stress
 
+
     def get_true_strain(self):
         """Uses engr max and min strain (self) to return true 
         max and min strain"""
         max_true_strain = np.log(1 + self.max_strain)
         min_true_strain = np.log(1 + self.min_strain)
+
         return max_true_strain, min_true_strain
+
 
     def calc_strains(self, max_stress, min_stress, max_strain, min_strain):
         """Uses max/min true stress and strain and elastic modulus to 
         calculate max/min elastic and plastic strain"""
+        modulus = self.modulus #Elastic Modulus in Pa
 
         #Get elastic strains...
-        max_elastic = max_stress/self.modulus
-        min_elastic = min_stress/self.modulus
+        max_elastic = max_stress/modulus
+        min_elastic = min_stress/modulus
 
         #Get plastic strains...
         max_plastic = max_strain - max_elastic
@@ -96,12 +100,19 @@ class Fatigue:
 
         return max_plastic, min_plastic, max_elastic, min_elastic
 
+#==============================================================================#
 
 
 def data_fit(x_in, y_in):
     """Takes in an x (parameter) and a y (cycles or rev.) and performs data 
     fitting operations for power fxn. Returns a coefficient, exponent and 
     standard error"""
+    if len(x_in) != len(y_in):
+        raise AttributeError(
+            "Cannot perform fitting: data are not the same length"
+            )
+    else:
+        k = len(x_in)
     x = np.log10(x_in)
     y = np.log10(y_in)
     xbar = np.mean(x)
@@ -117,48 +128,135 @@ def data_fit(x_in, y_in):
     #Get Standard Error and Strain-Life Parameters
     SE = sigma/np.sqrt(len(x_in))
     exponent = 1/bhat
-    coefficient = (10**(ahat/-bhat))*((1/2)**c)
+    coefficient = (10**(ahat/-bhat))*((1/2)**exponent)
 
-    return coefficient, expoennt, SE
+    return coefficient, exponent, SE
+
+def get_results(output_dir, date, time):
+    """Reads in HLC data from the written csv file, performs data fitting,
+    writes material parameters"""
+
+    #Read File...
+    HLC_file = Path(output_dir,'HalfLifeData.csv')
+    HLC_data = pd.read_csv(HLC_file)
+
+    #Define Data...
+    name = HLC_data['FileName']
+    Cycf = HLC_data['MaxCycles']
+    stress_range = HLC_data['StressRange']
+    stress_amp = HLC_data['StressAmp']
+    strain_amp = HLC_data['StrainAmp']
+    elastic_amp = HLC_data['ElasticAmp']
+    plastic_amp = HLC_data['PlasticAmp']
+
+    #Take out Neg. Plastic strain test...
+    i = 0
+    for element in plastic_amp:
+        if element <= 0.0:
+            del stress_range[i], stress_amp[i], strain_amp[i], \
+                elastic_amp[i], plastic_amp[i], Cycf[i]
+            print(
+                "-Note- File {} skipped (neg. plastic strain)".format(name[i])
+                )
+        i += 1
+
+    print("Fitting Data...")
+    #Fit Elastic Strain-Life...
+    fat_str_coeff, fat_str_exp, SEe = data_fit(stress_amp,Cycf)
+
+    #Fit Plastic Strain-Life...
+    fat_duct_coeff, fat_duct_exp, SEp = data_fit(plastic_amp,Cycf)
+
+    #Fit Stress-Life...
+    SRI1, b1, SEs = data_fit(stress_range,Cycf)
+
+    #Save Results...
+    print("Saving Results...")
+    output_file = Path(output_dir,"FatigueResults.log") 
+
+    with open(output_file,'w', newline='') as f:
+        f.write(
+            "Fatigue Results: Analysis " + date + "_" + time + "\n"
+            "--------------------------------------------\n"
+            "Strain-Life:\n"
+            "Fatigue Strength Coefficient (MPa): " + fat_str_coeff*10**-6 + "\n"
+            "Fatigue Strength Exponent:          " + fat_str_exp + "\n"
+            "Elastic Standard Error (SEe):       " + SEe + "\n"
+            "Fatigue Ductility Coefficient:      " + fat_duct_coeff + "\n"
+            "Fatigue Ductility Exponent:         " + fat_duct_exp + "\n"
+            "Plastic Standard Error (SEp):       " + SEp + "\n"
+            "--------------------------------------------\n"
+            "Stress-Life:\n"
+            "Stress-Range Intercept (MPa):       " + SRI1*10**-6 + "\n"
+            "Stress-Life Exponent (b1):          " + b1 + "\n"
+            "Stress-Life Standard Error (SEs):   " + str(SEs) + "\n"
+            "--------------------------------------------\n"
+            )
+
+
+
+
+
 
 
 def fatigue_analysis(
-    input_dir, output_folder, files, channels, stress_bool, geo_bool, modulus
+    input_dir, output_dir, files, channels, stress_bool, geo_bool, modulus,
+    date, time
     ):
 
-    print("Beginning Analysis Iteration...")
-    runs = []
-    names = []
-    stress_amps = []
-    strain_amps = []
-    cycles = []
+    #Write Half-life data to csv file...
+    with open((str(output_dir) + '/HalfLifeData.csv'),'w', newline='') as f:
+        thewriter = csv.writer(f,delimiter=',')
+        thewriter.writerow(['FileName','MaxCycles','StressRange','StressAmp',
+            'StrainAmp','ElasticAmp','PlasticAmp'])
 
-    for filename in files:
-        this_file = Path(input_dir,filename)
-        name = str(filename)
-        print("    Reading File ",name)
+        print("Beginning Analysis Iteration...")
 
-        #Create Instance...
-        run = Fatigue(
-            channels, stress_bool, geo_bool, modulus, this_file
-        )
+        for filename in files:
+            this_file = Path(input_dir,filename)
+            name = str(filename)
+            print("    Reading File ",name)
 
-        #Get true stress and strain...
-        max_true_stress, min_true_stress = run.get_true_stress()
-        max_true_strain, min_true_strain = run.get_true_strain()
+            #Create Instance...
+            run = Fatigue(
+                channels, stress_bool, geo_bool, modulus, this_file
+            )
 
-        #Get Elastic and Plastic strain...
-        max_plastic, min_plastic, max_elastic, min_elastic = run.calc_strains(
-            max_true_stress, min_true_stress, max_true_strain, min_true_strain
-        )
+            #Get true stress and strain...
+            max_true_stress, min_true_stress = run.get_true_stress()
+            max_true_strain, min_true_strain = run.get_true_strain()
+            
+            #Get Elastic and Plastic strain...
+            max_plastic, min_plastic, max_elastic, min_elastic = run.calc_strains(
+                max_true_stress, min_true_stress, max_true_strain, min_true_strain
+            )
+            
+            #Calculate amplitudes and ranges etc...
+            #stress range and amplitude
+            stress_range = max_true_stress - min_true_stress
+            stress_amp = stress_range/2
+            #Plastic and Elastic and total strain amplitudes
+            elastic_amp = (max_elastic - min_elastic)/2
+            plastic_amp = (max_plastic - min_plastic)/2
+            total_strain_amp = (max_true_strain - min_true_strain)/2
 
-        #Calculate amplitudes and ranges etc...
-        #stress range and amplitude
-        stress_range = max_true_stress - min_true_stress
-        stress_amp = stress_range/2
-        #Plastic and Elastic strain amplitudes
-        elastic_amp = (max_elastic - min_elastic)/2
-        plastic_amp = (max_plastic - min_plastic)/2
+            #Get cycles to failure
+            max_cycles = max(run.cycles)
+
+            #Write Data to Half-Life csv file...
+            thewriter.writerow([
+                name, max_cycles, stress_range, stress_amp, total_strain_amp,
+                elastic_amp, plastic_amp
+            ])
+
+    get_results(output_dir, date, time)
+
+
+
+
+
+        
+
 
 
 
