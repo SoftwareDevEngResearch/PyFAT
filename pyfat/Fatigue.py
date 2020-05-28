@@ -113,8 +113,18 @@ def data_fit(x_in, y_in):
             )
     else:
         k = len(x_in)
-    x = np.log10(x_in)
-    y = np.log10(y_in)
+
+    #Convert Data to list for analysis
+    i = 0
+    x_list = []
+    y_list = []
+    for i in range(k):
+        x_list.append(x_in[i])
+        y_list.append(y_in[i])
+        i += 1
+
+    x = np.log10(x_list)
+    y = np.log10(y_list)
     xbar = np.mean(x)
     ybar = np.mean(y)
 
@@ -125,17 +135,18 @@ def data_fit(x_in, y_in):
     sigmasq = sum((y - yhat)**2)/(k-2)
     sigma = np.sqrt(sigmasq)
 
-    #Get Standard Error and Strain-Life Parameters
+    #Get Standard Error and fatigue Parameters
     SE = sigma/np.sqrt(len(x_in))
     exponent = 1/bhat
     coefficient = (10**(ahat/-bhat))*((1/2)**exponent)
 
     return coefficient, exponent, SE
 
-def get_results(output_dir, date, time):
-    """Reads in HLC data from the written csv file, performs data fitting,
-    writes material parameters"""
 
+def trim_data(output_dir):
+    """Reads in HLC data from the written csv file, removes 
+    neg. plastic strain tests and runout tests, returns dataframe with 
+    trimmed data"""
     #Read File...
     HLC_file = Path(output_dir,'HalfLifeData.csv')
     HLC_data = pd.read_csv(HLC_file)
@@ -149,28 +160,59 @@ def get_results(output_dir, date, time):
     elastic_amp = HLC_data['ElasticAmp']
     plastic_amp = HLC_data['PlasticAmp']
 
-    #Take out Neg. Plastic strain test...
-    i = 0
-    for element in plastic_amp:
-        if element <= 0.0:
-            del stress_range[i], stress_amp[i], strain_amp[i], \
-                elastic_amp[i], plastic_amp[i], Cycf[i]
+    #Take out Neg. Plastic strain and runout tests...
+    num_vals = range(len(plastic_amp))
+
+    for i in num_vals:
+
+        if plastic_amp[i] <= 0.0:
             print(
                 "-Note- File {} skipped (neg. plastic strain)".format(name[i])
                 )
-        i += 1
+            del stress_range[i], stress_amp[i], strain_amp[i], elastic_amp[i],\
+                plastic_amp[i], Cycf[i], name[i]
+
+        elif Cycf[i] == 2000000:
+            print(
+                "-Note- File {} skipped (runout test)".format(name[i])
+                )
+            del stress_range[i], stress_amp[i], strain_amp[i], elastic_amp[i],\
+                plastic_amp[i], Cycf[i], name[i]
+
+    #Create dataframe for trimmed data
+    trimmed_data = pd.DataFrame(np.array([name, Cycf, stress_range, stress_amp, 
+        strain_amp, elastic_amp, plastic_amp]).transpose(), 
+        columns=['FileName','MaxCycles','StressRange','StressAmp','StrainAmp',
+            'ElasticAmp', 'PlasticAmp']
+    )
+
+    return trimmed_data, HLC_data
+
+
+def get_results(output_dir, date, time):
+    """Reads in HLC data from the written csv file, performs data fitting,
+    writes material parameters"""
+
+    #Trim data for neg. plastic strain and runout tests...
+    data, data_original = trim_data(output_dir)
 
     print("Fitting Data...")
     #Fit Elastic Strain-Life...
-    fat_str_coeff, fat_str_exp, SEe = data_fit(stress_amp,Cycf)
+    fat_str_coeff, fat_str_exp, SEe = data_fit(
+        data['StressAmp'], data['MaxCycles']
+    )
 
     #Fit Plastic Strain-Life...
-    fat_duct_coeff, fat_duct_exp, SEp = data_fit(plastic_amp,Cycf)
+    fat_duct_coeff, fat_duct_exp, SEp = data_fit(
+        data['PlasticAmp'], data['MaxCycles']
+    )
 
     #Fit Stress-Life...
-    SRI1, b1, SEs = data_fit(stress_range,Cycf)
+    SRI1, b1, SEs = data_fit(
+        data['StressRange'], data['MaxCycles']
+    )
 
-    #Save Results...
+    #Save Fatigue Results to a log file...
     print("Saving Results...")
     output_file = Path(output_dir,"FatigueResults.log") 
 
@@ -179,22 +221,61 @@ def get_results(output_dir, date, time):
             "Fatigue Results: Analysis " + date + "_" + time + "\n"
             "--------------------------------------------\n"
             "Strain-Life:\n"
-            "Fatigue Strength Coefficient (MPa): " + fat_str_coeff*10**-6 + "\n"
-            "Fatigue Strength Exponent:          " + fat_str_exp + "\n"
-            "Elastic Standard Error (SEe):       " + SEe + "\n"
-            "Fatigue Ductility Coefficient:      " + fat_duct_coeff + "\n"
-            "Fatigue Ductility Exponent:         " + fat_duct_exp + "\n"
-            "Plastic Standard Error (SEp):       " + SEp + "\n"
+            "Fatigue Strength Coefficient (MPa): " +\
+                 str(round((fat_str_coeff*10**-6),4)) + "\n"
+            "Fatigue Strength Exponent:          " +\
+                 str(round(fat_str_exp,5)) + "\n"
+            "Elastic Standard Error (SEe):       " +\
+                 str(round(SEe,4)) + "\n"
+            "Fatigue Ductility Coefficient:      " +\
+                 str(round(fat_duct_coeff,5)) + "\n"
+            "Fatigue Ductility Exponent:         " +\
+                 str(round(fat_duct_exp,5)) + "\n"
+            "Plastic Standard Error (SEp):       " +\
+                 str(round(SEp,4)) + "\n"
             "--------------------------------------------\n"
             "Stress-Life:\n"
-            "Stress-Range Intercept (MPa):       " + SRI1*10**-6 + "\n"
-            "Stress-Life Exponent (b1):          " + b1 + "\n"
-            "Stress-Life Standard Error (SEs):   " + str(SEs) + "\n"
+            "Stress-Range Intercept (MPa):       " +\
+                 str(round((SRI1*10**-6),4)) + "\n"
+            "Stress-Life Exponent (b1):          " +\
+                 str(round(b1,5)) + "\n"
+            "Stress-Life Standard Error (SEs):   " +\
+                 str(round(SEs,4)) + "\n"
             "--------------------------------------------\n"
             )
 
+    results = [
+        fat_str_coeff, fat_str_exp, SEe, fat_duct_coeff, fat_duct_exp, SEp,
+        SRI1, b1, SEs
+    ]
 
+    return results, data_original
+    
 
+def create_plots(data, results, modulus, output_dir):
+    print("Creating Plots...")
+
+    save_loc = Path(output_dir, "plots")
+    modulus = int(modulus)*10**6
+
+    #Create Models...
+    N = 2000000
+    Nf = np.linspace(1,N,N) #Cycles to Failure Variable
+    Rf = 2*Nf #Reversals to Failure Variable
+    plastic_SL = (results[3]*(Rf**results[4])) #Plastic Strain-Life
+    elastic_SL = ((results[0]/modulus)*(Rf**results[1])) #Elastic Strain-Life
+    total_SL = plastic_SL + elastic_SL #Total Strain-Life
+    stresslife = (results[6]*(Nf**results[7])) #Stress-Life
+
+    #Plot Plastic Strain-Life
+    plots.Plots(None, save_loc).fatigue_loglog(
+        data['MaxCycles'], data['PlasticAmp'], Rf, plastic_SL, "P"
+    )
+
+    #Plot Elastic Strain-Life
+    plots.Plots(None, save_loc).fatigue_loglog(
+        data['MaxCycles'], data['ElasticAmp'], Rf, elastic_SL, "E"
+    )
 
 
 
@@ -249,16 +330,9 @@ def fatigue_analysis(
                 elastic_amp, plastic_amp
             ])
 
-    get_results(output_dir, date, time)
+    #Get results...
+    results, data_original = get_results(output_dir, date, time)
 
-
-
-
-
-        
-
-
-
-
-
+    #Create plots...
+    create_plots(data_original, results, modulus, output_dir)
 
