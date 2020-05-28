@@ -267,16 +267,32 @@ def create_plots(data, results, modulus, output_dir):
     total_SL = plastic_SL + elastic_SL #Total Strain-Life
     stresslife = (results[6]*(Nf**results[7])) #Stress-Life
 
-    #Plot Plastic Strain-Life
+    #Plot Plastic Strain-Life...
     plots.Plots(None, save_loc).fatigue_loglog(
         data['MaxCycles'], data['PlasticAmp'], Rf, plastic_SL, "P"
     )
 
-    #Plot Elastic Strain-Life
+    #Plot Elastic Strain-Life...
     plots.Plots(None, save_loc).fatigue_loglog(
         data['MaxCycles'], data['ElasticAmp'], Rf, elastic_SL, "E"
     )
 
+    #Plot Stress-Life...
+    c = 10**-6
+    plots.Plots(None, save_loc).fatigue_loglog(
+        data['MaxCycles'], data['StressRange']*c, Nf, stresslife*c, "S"
+    )
+
+    #Plot Strain Amp vs Cycles...
+    StrainLife = total_SL*100
+    plots.Plots(None,save_loc).fatigue_semilogX(
+        data['MaxCycles'], data['StrainAmp']*100, Nf, StrainLife
+    )
+
+    #Plot total strain-life 
+    plots.Plots(None,save_loc).total_strain_life(
+        Nf, plastic_SL, elastic_SL, total_SL
+    )
 
 
 
