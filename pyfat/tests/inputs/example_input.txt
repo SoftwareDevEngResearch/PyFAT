@@ -1,0 +1,5 @@
+#Test Input File for pytest
+
+INPUT = This is the Input Location!
+
+OUTPUT = This is the Output Location!

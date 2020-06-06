@@ -10,10 +10,25 @@
 from pathlib import Path
 import os
 import argparse
+import datetime
 #--------#
 import monotonic
+import fatigue
 import get_channels
 #-----------------------#
+
+
+def get_datetime():
+    """Returns date and time, both formatted as strings"""
+    hour = datetime.datetime.now().time().hour
+    minute = datetime.datetime.now().time().minute
+    month = datetime.date.today().month
+    day = datetime.date.today().day
+
+    time_now = str(hour) + str(minute)
+    date_now = str(month) + str(day)
+
+    return time_now, date_now
 
 
 def io_sorter(input_file):
@@ -41,15 +56,33 @@ def io_sorter(input_file):
     return input_loc, output_loc
 
 
-def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
+def analysis(
+    input_path, output_path, monotonic_bool, fatigue_bool, modulus=None
+    ):
     """performs iteration of analysis. Takes in user input for analysis 
     type and directory path to data, performs analysis iteration for 
     selected analysis type. Saves results to user-defined save location."""
 
     #Get list of data files in input directory
     input_dir = str(input_path).strip()
+    output_dir = str(output_path).strip()
     files = next(os.walk(input_dir))[2]
-    
+
+    #Make Folder to Save Results in
+    time, date = get_datetime()
+    if monotonic_bool:
+        print("==================== MONOTONIC ANALYSIS ===================")
+        output_folder = Path(
+            output_dir,"Monotonic_Results_" + date + "_" + time
+        )
+    if fatigue_bool:
+        print("===================== FATIGUE ANALYSIS ====================")
+        output_folder = Path(
+            output_dir,"Fatigue_Results_" + date + "_" + time
+        )
+    os.mkdir(output_folder)
+    os.mkdir(Path(output_folder,"plots"))
+
     #Remove hidden folders/files from list
     for filename in files:
         if filename.startswith("."):
@@ -67,18 +100,21 @@ def analysis_iteration(input_path, output_path, monotonic_bool, fatigue_bool):
 
     #Start the Analysis...        
     if monotonic_bool:
-        print("Beginning Monotonic Analysis Iteration...")
         monotonic.mono_analysis(
-            input_dir, files, channels, stress_bool, geo_bool
+            input_dir, output_folder, files, channels, stress_bool, geo_bool
         )
         
     elif fatigue_bool:
-        pass #Pass for now ----- NEED TO ADD FATIGUE FUNCTIONALITY LATER
-    """
         fatigue.fatigue_analysis(
-            input_dir, files, channels, stress_bool, geo_bool
+            input_dir, output_folder, files, channels, stress_bool, geo_bool,
+            modulus, date, time
         )
-    """
+    
+    #Finish up everything...
+    print("---- DONE ----")
+    print("View results here:")
+    print(str(output_folder))
+    print("===========================================================")
 
 
 def main():
@@ -121,8 +157,8 @@ def main():
     input_path, output_path = io_sorter(input_file)
 
     #Begin selected analysis type...
-    analysis_iteration(
-        input_path, output_path, monotonic_bool, fatigue_bool
+    analysis(
+        input_path, output_path, monotonic_bool, fatigue_bool, modulus=modulus
     )
   
 
