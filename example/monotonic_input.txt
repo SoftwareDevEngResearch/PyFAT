@@ -1,0 +1,7 @@
+#Example Monotonic Input File...
+
+#Required input location (where your data .csv files are located):
+INPUT = /Users/Kevan/Documents/ME599/Course_Project/PyFAT/example/monotonic
+
+#Required output location (where you want the results to be saved):
+OUTPUT = /Users/Kevan/Documents/ME599/Course_Project/PyFAT/example/output
