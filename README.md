@@ -116,8 +116,8 @@ where the test data files are located as well as where to output the results...
 * -m: Run monotonic analysis 
 * -f: Run fatigue analysis
 * -e: Elastic Modulus. The -e option is given ONLY when -f is chosen for fatigue.
-    **The -e option must be followed by the material's elastic modulus in MPa**
-    Example: -e 1902 (if the material's elastic modulud is 1902 MPa)
+    * **The -e option must be followed by the material's elastic modulus in MPa**
+        * Example: -e 1902 (if the material's elastic modulud is 1902 MPa)
 
 # Summary of Provided Examples
 Two examples are provided with PyFAT, one for Monotonic analysis and another for Fatigue analysis.
@@ -156,6 +156,7 @@ Note: The path to the input file is passed in first, followed by the -m command 
         * OUTPUT = {path to PyFAT on your computer}/PyFAT/example/output
 2. Change into the pyfat directory: PyFAT/pyfat
 3. Run the program with the following command:
+
     **python PyFAT.py {path to PyFAT on your computer}/PyFAT/example/fatigue_input.txt -f -e 1902**
 
 Note: The path to the input file is passed in first, followed by the -f command for fatigue analysis,
