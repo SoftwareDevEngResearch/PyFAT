@@ -113,9 +113,9 @@ where the test data files are located as well as where to output the results...
 
 **Other User Inputs (Argparse inputs):**
 
--m: Run monotonic analysis 
--f: Run Fatigue analysis
--e: Elastic Modulus. The -e option is given ONLY when -f is chosen for fatigue.
+* -m: Run monotonic analysis 
+* -f: Run fatigue analysis
+* -e: Elastic Modulus. The -e option is given ONLY when -f is chosen for fatigue.
     **The -e option must be followed by the material's elastic modulus in MPa**
     Example: -e 1902 (if the material's elastic modulud is 1902 MPa)
 
