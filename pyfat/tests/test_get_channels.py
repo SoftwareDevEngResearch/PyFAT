@@ -13,8 +13,8 @@ def test_mono_channels():
     for MONOTONIC data for two data file types"""
 
     cwd = os.path.dirname(os.path.abspath(__file__))
-    file1 = Path(cwd,"mono_data_ex1.csv")
-    file2 = Path(cwd,"mono_data_ex2.csv")
+    file1 = Path(cwd,"inputs","mono_data_ex1.csv")
+    file2 = Path(cwd,"inputs","mono_data_ex2.csv")
 
     channels1, stressb1, geob1 = get_channels.mono_channels(
         file1
@@ -49,8 +49,8 @@ def test_fatigue_channels():
     for FATIGUE data for two data file types"""
 
     cwd = os.path.dirname(os.path.abspath(__file__))
-    file1 = Path(cwd,"fatigue_data_ex1.csv")
-    file2 = Path(cwd,"fatigue_data_ex2.csv")
+    file1 = Path(cwd,"inputs","fatigue_data_ex1.csv")
+    file2 = Path(cwd,"inputs","fatigue_data_ex2.csv")
 
     channels1, stressb1, geob1 = get_channels.fatigue_channels(
         file1

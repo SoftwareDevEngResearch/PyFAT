@@ -69,7 +69,7 @@ def mono_channels(file):
         raise AttributeError(
             "Data must contain stress OR sample width AND thickness"
         )
-    
+
     return channels, stress_bool, geo_bool
 
 
