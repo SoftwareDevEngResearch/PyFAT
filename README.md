@@ -173,9 +173,6 @@ The "results" will contain the following:
 * A "plots" directory with all applicable plots.
 
 # Installation Instructions
-text here!!
-
-
-
-
-
+Multiple options:
+1. Download Source Code from GitHub. Follow instructions (above) to run examples.
+2. Use the command: **pip install PyFAT**
