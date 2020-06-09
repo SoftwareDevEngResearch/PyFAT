@@ -1,6 +1,8 @@
 # PyFAT Overview
 Python FATigue Testing Data Analysis Package
 
+[![DOI](https://zenodo.org/badge/256872303.svg)](https://zenodo.org/badge/latestdoi/256872303)
+
 This Software package contains comprehensive and intuitive automated analysis for 
 polymer or composite material test data (both monotonic tensile and fatigue testing). 
 The package will read and analyze numerous .csv files created by material test systems 
