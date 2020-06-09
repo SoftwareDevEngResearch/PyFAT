@@ -7,7 +7,7 @@ from pathlib import Path
 #---------#
 import plots
 #------------------------------#
-#
+
 class Fatigue:
     """Takes in fatigue test data and performs necessary processing
     """
@@ -358,4 +358,3 @@ def fatigue_analysis(
 
     #Create plots...
     create_plots(data_original, results, modulus, output_dir)
-
