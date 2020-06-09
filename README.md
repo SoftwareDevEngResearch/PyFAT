@@ -8,12 +8,25 @@ throughout a testing program for any plastic or composite material.
 
 Historically, material test engineers would analyze .csv files one-by-one to retrieve
 the necessary information (test parameters, material properties, etc.). This process
-was time consuming and tedious. PyFAT fixes that problem, providing the ability to 
+was time consuming and tedious. PyFAT fixes that problem  by providing the ability to 
 analyze numerous files quickly, determining all necessary parameters and creating
-high quality, convenient plot of both monotontic and fatgiue characteristics.
+high quality and convenient plots of both monotontic and fatgiue characteristics.
 
-**PyFAT contains two main analysis techniques: "monotonic" and "fatigue".**
+PyFAT contains 5 modules:
+* **PyFAT.py:** The “main” file… parses user inputs, main functionality/analysis order/organization.
+* **get_channels.py:** Reads data files, determines relevant data column headers.
+* **monotonic.py:** Contains “Monotonic” class. Performs all monotonic analysis and iteration.
+* **fatigue.py:** Contains “Fatigue” class. Performs all fatigue analysis and iteration.
+* **plots.py:** Contains “Plots” class. Creates plots for the data and saves them.
 
+**Testing:**
+PyFAT also contains a testing suite that assures the correct function of the above-mentioned modules.
+The testing suite is located in the "tests" directory: **PyFAT/pyfat/tests**
+
+The testing suite incorporates continuous integration capability through TravisCI to assure that the package 
+is always functioning correctly and is up-to-date.
+
+To run the testing suite (including 14 comprehensive tests), run the command **pytest**
 
 # Monotonic Analysis
 This functionality is used to analyze a directory containing only .csv files
