@@ -1,0 +1,5 @@
+#Example fatigue input file
+
+INPUT=/Users/Kevan/Documents/ME599/Course_Project/PyFAT/example/fatigue
+
+OUTPUT=/Users/Kevan/Documents/ME599/Course_Project/PyFAT/example/output

@@ -169,11 +169,12 @@ def mono_analysis(
             max_true_strain = max(true_strain)
 
             #Write values to file for each test...
+            
             thewriter.writerow([
-                name, p1, p2, ext, poissons, emod, offset_stress, offset_strain,
-                max_load, yield_stress, yield_strain, max_true_stress, 
-                engr_frac_strength,max_true_strain, max_ax_str, max_tr_str
-                
+                name, p1, p2, ext, poissons, emod*10**-9, offset_stress*10**-6, 
+                offset_strain,max_load/1000, yield_stress*10**-6, yield_strain, 
+                max_true_stress*10**-6, engr_frac_strength*10**-6, 
+                max_true_strain, max_ax_str*100, max_tr_str*100   
             ])
 
             #make Individual Test Plot...

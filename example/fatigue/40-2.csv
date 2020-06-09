@@ -1,0 +1,3 @@
+﻿Total Cycles,Elapsed Cycles,Step,PC:Cycle Start Time (s),PC:Frequency (Hz),"Position(8800 (0,1):Position):Maximum (mm)","Position(8800 (0,1):Position):Minimum (mm)","Load(8800 (0,1):Load):Maximum (kN)","Load(8800 (0,1):Load):Minimum (kN)","Strain(8800 (0,1):Axial Strain):Maximum (%)","Strain(8800 (0,1):Axial Strain):Minimum (%)","Strain(8800 (0,1):Axial Strain):Amplitude (%)",width,thickness
+1,1,2,2.195,1,41.5164532,30.65570566,3.3962816,-4.042470455,5.055840767,-5.051937035,5.053888901,13,5
+2,2,2,3.196,1,41.12320111,31.4409425,3.086440079,-3.570340201,5.038303962,-5.795629415,5.416966689,,

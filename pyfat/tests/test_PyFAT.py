@@ -13,7 +13,7 @@ def test_io_sorter():
 
     cwd = os.path.dirname(os.path.abspath(__file__))
 
-    loc = Path(cwd,"example_input.txt")
+    loc = Path(cwd,"inputs","example_input.txt")
     loc = str(loc)
 
     input_loc, output_loc = PyFAT.io_sorter(loc)
