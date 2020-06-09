@@ -6,7 +6,6 @@ pytest
 pytest-cov
 pandas
 matplotlib
-csv
 pathlib
 #
 ###### Requirements with Version Specifiers ######
