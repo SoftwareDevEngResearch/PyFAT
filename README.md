@@ -106,9 +106,9 @@ where the test data files are located as well as where to output the results...
 * Use a .txt file format
 * Use the character "#" at the beginning of a line for comments.
     * Lines starting with # will be ignored by the program.
-* Write a line with "INPUT = " or "INPUT=" (Spaces dont matter) followed by the path to where the test data .csv files are located.
+* Write a line with "INPUT = " or "INPUT=" (Spaces don't matter) followed by the path to where the test data .csv files are located.
     * Example: INPUT = /path/to/input/files
-* Write a line with "OUTPUT = " or "OUTPUT=" (Spaces dont matter) followed by the path to where the user wants the results to be saved.
+* Write a line with "OUTPUT = " or "OUTPUT=" (Spaces don't matter) followed by the path to where the user wants the results to be saved.
     * Example: OUTPUT = /path/to/output/location
 
 **Other User Inputs (Argparse inputs):**
@@ -117,7 +117,7 @@ where the test data files are located as well as where to output the results...
 * -f: Run fatigue analysis
 * -e: Elastic Modulus. The -e option is given ONLY when -f is chosen for fatigue.
     * **The -e option must be followed by the material's elastic modulus in MPa**
-        * Example: -e 1902 (if the material's elastic modulud is 1902 MPa)
+        * Example: -e 1902 (if the material's elastic modulus is 1902 MPa)
 
 # Summary of Provided Examples
 Two examples are provided with PyFAT, one for Monotonic analysis and another for Fatigue analysis.
@@ -146,6 +146,9 @@ The example folder contains the following items:
 Note: The path to the input file is passed in first, followed by the -m command for monotonic analysis.
 
 4. Wait for results.
+The "results" will contain the following:
+* Monotonic_Output.csv with all of the determined material parameters listed.
+* A "plots" directory with all applicable plots.
 
 
 **To Run the Fatigue Example:**
@@ -164,12 +167,12 @@ Note: The path to the input file is passed in first, followed by the -f command 
       of 1902 MPa for the example material.
 
 4. Wait for results.
+The "results" will contain the following:
+* HalfLifeData.csv containing all of the half-life cycle values for every test.
+* FatigueResults.log containing all of the determined material parameters listed in human-readable form.
+* A "plots" directory with all applicable plots.
 
-
-
-
-
-
-
-
-
+# Installation Instructions
+Multiple options:
+1. Download Source Code from GitHub. Follow instructions (above) to run examples.
+2. Use the command: **pip install PyFAT**

@@ -1,0 +1,7 @@
+include LICENSE
+include README.md
+include pyfat/tests/inputs*.txt
+include pyfat/tests/inputs*.csv
+include example/*.txt
+include example/monotonic/*.txt
+include example/fatigue/*.txt
