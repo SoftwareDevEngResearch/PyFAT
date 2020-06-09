@@ -175,4 +175,5 @@ The "results" will contain the following:
 # Installation Instructions
 Multiple options:
 1. Download Source Code from GitHub. Follow instructions (above) to run examples.
+    * GitHub: https://github.com/SoftwareDevEngResearch/PyFAT
 2. Use the command: **pip install PyFAT**
