@@ -323,18 +323,12 @@ def fatigue_analysis(
             #Get true stress and strain...
             max_true_stress, min_true_stress = run.get_true_stress()
             max_true_strain, min_true_strain = run.get_true_strain()
-            print("stress max,min:", max_true_stress, min_true_stress)
-            print("strain max,min:", max_true_strain, min_true_strain)
             
             #Get Elastic and Plastic strain...
             max_plastic, min_plastic, max_elastic, min_elastic = run.calc_strains(
                 max_true_stress, min_true_stress, max_true_strain, min_true_strain
             )
-            print("max plastic strain",max_plastic)
-            print("min plastic strain", min_plastic)
-            print("max elastic strain",max_elastic)
-            print("min elastic strain", min_elastic)
-            
+
             #Calculate amplitudes and ranges etc...
             #stress range and amplitude
             stress_range = max_true_stress - min_true_stress
