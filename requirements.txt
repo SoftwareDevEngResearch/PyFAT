@@ -3,7 +3,6 @@
 #
 ###### Requirements without Version Specifiers ######
 pytest
-pytest-cov
 pandas
 matplotlib
 pathlib
