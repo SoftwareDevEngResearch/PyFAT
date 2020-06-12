@@ -5,7 +5,7 @@ with open("README.md", encoding='utf-8') as fh:
 
 setuptools.setup(
     name="PyFAT",
-    version="0.0.1",
+    version="0.0.2",
     author="Kevan Gahan",
     author_email="gahank@oregonstate.edu",
     license='MIT',
